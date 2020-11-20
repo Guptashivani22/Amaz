@@ -51,11 +51,11 @@ import com.google.gson.JsonParser;
 public class AmazonReviewLengthAnalysis extends Configured implements Tool {
 
 	// Just used for logging
-	protected static final Logger LOG = LoggerFactory.getLogger(AmazonProductDescAnalysis.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(AmazonReviewLengthAnalysis.class);
 
 	// This is the execution entry point for Java programs
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(HBaseConfiguration.create(), new AmazonProductDescAnalysis(), args);
+		int res = ToolRunner.run(HBaseConfiguration.create(), new AmazonReviewLengthAnalysis(), args);
 		System.exit(res);
 	}
 
@@ -68,7 +68,7 @@ public class AmazonReviewLengthAnalysis extends Configured implements Tool {
 
 		// Now we create and configure a map-reduce "job"
 		Job job = Job.getInstance(getConf(), "AmazonProductDescAnalysis");
-		job.setJarByClass(AmazonProductDescAnalysis.class);
+		job.setJarByClass(AmazonReviewLengthAnalysis.class);
 		for (int i = 0; i < args.length; i += 1) {
 			  if ("-skip".equals(args[i])) {
 				job.getConfiguration().setBoolean("wordcount.skip.patterns", true);
@@ -125,7 +125,7 @@ public class AmazonReviewLengthAnalysis extends Configured implements Tool {
 		protected void setup(Context context) throws IOException,
         InterruptedException{
 			parser = new JsonParser();
-			rowsProcessed = context.getCounter("AmazonProductDescAnalysis", "Rows Processed");
+			rowsProcessed = context.getCounter("AmazonReviewLengthAnalysis", "Rows Processed");
 			if (context.getInputSplit() instanceof FileSplit) {
 			  this.input = ((FileSplit) context.getInputSplit()).getPath().toString();
 			} else {
