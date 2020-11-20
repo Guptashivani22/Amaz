@@ -145,7 +145,7 @@ public class review_length extends Configured implements Tool {
  if (ReviewTextLength.startsWith("<")) {
             String pattern = ".*alt=\"([^\"]*)\".*";
             Pattern p = Pattern.compile(pattern);
-            Matcher m = p.matcher(maincat);
+            Matcher m = p.matcher(ReviewTextLength);
             while(m.find()) { ReviewTextLength = m.group(1); }
         }
 				
