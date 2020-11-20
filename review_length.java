@@ -62,13 +62,13 @@ import com.google.gson.JsonParser;
  * This Map-Reduce code will go through every Amazon review in rfox12:reviews
  * It will then output data on the top-level JSON keys
  */
-public class AmazonReviewLengthAnalysis extends Configured implements Tool {
+public class review_length extends Configured implements Tool {
 	// Just used for logging
-	protected static final Logger LOG = LoggerFactory.getLogger(AmazonReviewLengthAnalysis.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(review_length.class);
 
 	// This is the execution entry point for Java programs
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(HBaseConfiguration.create(), new AmazonReviewLengthAnalysis(), args);
+		int res = ToolRunner.run(HBaseConfiguration.create(), new review_length(), args);
 		System.exit(res);
 	}
 
@@ -79,8 +79,8 @@ public class AmazonReviewLengthAnalysis extends Configured implements Tool {
 		}
 
 		// Now we create and configure a map-reduce "job"     
-		Job job = Job.getInstance(getConf(), "AmazonReviewLengthAnalysis");
-		job.setJarByClass(AmazonReviewLengthAnalysis.class);
+		Job job = Job.getInstance(getConf(), "review_length");
+		job.setJarByClass(review_length.class);
     
     		// By default we are going to can every row in the table
 		Scan scan = new Scan();
@@ -125,7 +125,7 @@ public class AmazonReviewLengthAnalysis extends Configured implements Tool {
 		@Override
 		protected void setup(Context context) {
 			parser = new JsonParser();
-			rowsProcessed = context.getCounter("AmazonReviewLengthAnalysis", "Rows Processed");
+			rowsProcessed = context.getCounter("review_length", "Rows Processed");
     		}
   
   		// This "map" method is called with every row scanned.  
@@ -168,7 +168,7 @@ public class AmazonReviewLengthAnalysis extends Configured implements Tool {
 				//System.out.println(
 				//		"Product description words coung after removing duplicates and before removing stopwords: "
 				//				+ allWords.size());
- 				URL path = AmazonReviewLengthAnalysis.class.getClass().getResource("/stopwords.txt");
+ 				URL path = review_length.class.getClass().getResource("/stopwords.txt");
 
 				List<String> stopwords = Files.readAllLines(Paths.get(path.getPath().toString().substring(1)));
 
