@@ -142,7 +142,12 @@ public class AmazonReviewLengthAnalysis extends Configured implements Tool {
 
 				String ReviewTextLength = jsonObject.get("reviewText").getAsString();
 				
-
+ if (ReviewTextLength.startsWith("<")) {
+            String pattern = ".*alt=\"([^\"]*)\".*";
+            Pattern p = Pattern.compile(pattern);
+            Matcher m = p.matcher(maincat);
+            while(m.find()) { ReviewTextLength = m.group(1); }
+        }
 				
 				ReviewTextLength = ReviewTextLength.replaceAll("\\<.*?\\>", "").replaceAll("\\d\\.", "")
 						.replaceAll("[^a-zA-Z ]", " ").replaceAll("(?U)\\s+", " ");
