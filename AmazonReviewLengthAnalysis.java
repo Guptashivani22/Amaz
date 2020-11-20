@@ -48,7 +48,7 @@ import com.google.gson.JsonParser;
  * This Map-Reduce code will go through every Amazon product in rfox12:products
  * It will then output data on the top-level JSON keys
  */
-public class AmazonProductDescAnalysis extends Configured implements Tool {
+public class AmazonReviewLengthAnalysis extends Configured implements Tool {
 
 	// Just used for logging
 	protected static final Logger LOG = LoggerFactory.getLogger(AmazonProductDescAnalysis.class);
@@ -168,58 +168,57 @@ public class AmazonProductDescAnalysis extends Configured implements Tool {
 
 				JsonObject jsonObject = jsonTree.getAsJsonObject();
 
-				String description = jsonObject.get("description").getAsString();
-				//System.out.println("Product description before cleaning: " + description);
+				String ReviewTextLength = jsonObject.get("reviewText").getAsString();
+				
 
-				if (description.startsWith("<")) {
-					String pattern = ".*alt=\"([^\"]*)\".*";
-					Pattern p = Pattern.compile(pattern);
-					Matcher m = p.matcher(description);
-					while (m.find()) {
-						description = m.group(1);
-					}
-				}
-				description = description.replaceAll("\\<.*?\\>", "").replaceAll("\\d\\.", "")
+				
+				ReviewTextLength = ReviewTextLength.replaceAll("\\<.*?\\>", "").replaceAll("\\d\\.", "")
 						.replaceAll("[^a-zA-Z ]", " ").replaceAll("(?U)\\s+", " ");
-				// .replaceAll("[\\\\[\\\\](){}^=]", "").replaceAll("\\s*,\\s*", " ");
-				// .replaceAll("\\d\\.", "").replaceAll("( =^ ^=)", "").replaceAll("(=^ ^=)",
-				// "");
+				
 
 				//System.out.println("Product description after cleaning:" + description);
 
-				ArrayList<String> allWords = Stream.of(description.toLowerCase().split("\\s+")).map(String::trim)
+				ArrayList<String> allWords = Stream.of(ReviewTextLength.toLowerCase().split("\\s+")).map(String::trim)
 						.collect(Collectors.toCollection(ArrayList<String>::new));
 
 				//System.out.println(
 				//		"Product description words count before removing duplicates and stopwords: " + allWords.size());
 
-				allWords = Stream.of(description.toLowerCase().split("\\s+")).map(String::trim)
+				allWords = Stream.of(ReviewTextLength.toLowerCase().split("\\s+")).map(String::trim)
 						.filter(item -> !item.isEmpty()).distinct()
 						.collect(Collectors.toCollection(ArrayList<String>::new));
 
 				//System.out.println(
 				//		"Product description words coung after removing duplicates and before removing stopwords: "
 				//				+ allWords.size());
-				/*URL path = AmazonProductDescAnalysis.class.getClass().getResource("/stopwords.txt");
+ 				URL path = AmazonReviewLengthAnalysis.class.getClass().getResource("/stopwords.txt");
 
 				List<String> stopwords = Files.readAllLines(Paths.get(path.getPath().toString().substring(1)));
 
 				allWords.removeAll(stopwords);
+				
+					double avg_price = 0.0;
+							avg_price=allWords.size();
+								
+								double bucket = Math.floor(avg_price/50.0)*50.0;
+								String bucketText = bucket + " to " + (bucket + 50.0);
+								context.write(new Text(bucketText),one);
 
-				System.out.println(
-						"Product description words count after removing duplicates and stopwords: " + allWords.size());
-				*/
-				Iterator itr = allWords.iterator();
-				while (itr.hasNext()) {
-					String str=itr.next().toString();
-					if (patternsToSkip.contains(str)) {
-						LOG.warn("Skipping value: "+str);
-					continue;
-					}
-					else{
-					context.write(new Text(str), one);
-					}
-				}
+
+// 				System.out.println(
+// 						"Product description words count after removing duplicates and stopwords: " + allWords.size());
+				
+// 				Iterator itr = allWords.iterator();
+// 				while (itr.hasNext()) {
+// 					String str=itr.next().toString();
+// 					if (patternsToSkip.contains(str)) {
+// 						LOG.warn("Skipping value: "+str);
+// 					continue;
+// 					}
+// 					else{
+// 					context.write(new Text(str), one);
+// 					}
+// 				}
 
 
 				// Here we increment a counter that we can read when the job is done
