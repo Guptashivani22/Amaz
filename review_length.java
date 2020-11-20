@@ -125,10 +125,11 @@ public class review_length extends Configured implements Tool {
 		private boolean caseSensitive = false;
 		// This setup method is called once before the task is started
 		@Override
-		protected void setup(Context context) {
+		protected void setup(Context context) throws IOException,
+        InterruptedException{
 			parser = new JsonParser();
-			rowsProcessed = context.getCounter("review_length", "Rows Processed");
-    		if (context.getInputSplit() instanceof FileSplit) {
+			rowsProcessed = context.getCounter("AmazonProductDescAnalysis", "Rows Processed");
+			if (context.getInputSplit() instanceof FileSplit) {
 			  this.input = ((FileSplit) context.getInputSplit()).getPath().toString();
 			} else {
 			  this.input = context.getInputSplit().toString();
