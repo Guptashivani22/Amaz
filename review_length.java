@@ -173,11 +173,24 @@ public class review_length extends Configured implements Tool {
 				List<String> stopwords = Files.readAllLines(Paths.get(path.getPath().toString().substring(1)));
 
 				allWords.removeAll(stopwords);
+					double wordCount = 0.0;				
+				Iterator itr = allWords.iterator();
+				while (itr.hasNext()) {
+					String str=itr.next().toString();
+					if (patternsToSkip.contains(str)) {
+// 						LOG.warn("Skipping value: "+str);
+					continue;
+					}
+					else{
+						wordCount = wordCount+1.0;
+// 					context.write(new Text(str), one);
+					}
+				}
 				
-					double avg_price = 0.0;
-							avg_price=allWords.size();
+
+// 							reviewCount=wordCount;
 								
-								double bucket = Math.floor(avg_price/50.0)*50.0;
+								double bucket = Math.floor(wordCount/50.0)*50.0;
 								String bucketText = bucket + " to " + (bucket + 50.0);
 								context.write(new Text(bucketText),one);
 
