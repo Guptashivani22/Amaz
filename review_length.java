@@ -120,13 +120,42 @@ public class review_length extends Configured implements Tool {
     
 		private Counter rowsProcessed;  	// This will count number of rows processed
 		private JsonParser parser;		// This gson parser will help us parse JSON
-
+		private String input;
+		private Set<String> patternsToSkip = new HashSet<String>();
+		private boolean caseSensitive = false;
 		// This setup method is called once before the task is started
 		@Override
 		protected void setup(Context context) {
 			parser = new JsonParser();
 			rowsProcessed = context.getCounter("review_length", "Rows Processed");
-    		}
+    		if (context.getInputSplit() instanceof FileSplit) {
+			  this.input = ((FileSplit) context.getInputSplit()).getPath().toString();
+			} else {
+			  this.input = context.getInputSplit().toString();
+			}
+			Configuration config = context.getConfiguration();
+		    this.caseSensitive = config.getBoolean("wordcount.case.sensitive", false);
+		    if (config.getBoolean("wordcount.skip.patterns", false)) {
+		  	  URI[] localPaths = context.getCacheFiles();
+			parseSkipFile(localPaths[0]);
+		    }
+		}
+		private void parseSkipFile(URI patternsURI) {
+		  LOG.info("Added file to the distributed cache: " + patternsURI);
+		  try {
+			BufferedReader fis = new BufferedReader(new FileReader(new File(patternsURI.getPath()).getName()));
+			String pattern;
+			while ((pattern = fis.readLine()) != null) {
+			  patternsToSkip.add(pattern);
+			}
+			LOG.warn("Patterns skipping size:"+ patternsToSkip.size());
+			LOG.warn("Patterns skipping:"+ patternsToSkip.toString());
+			
+		  } catch (IOException ioe) {
+			System.err.println("Caught exception while parsing the cached file '"
+				+ patternsURI + "' : " + StringUtils.stringifyException(ioe));
+		  }
+		}
   
   		// This "map" method is called with every row scanned.  
 		@Override
@@ -178,7 +207,7 @@ public class review_length extends Configured implements Tool {
 				while (itr.hasNext()) {
 					String str=itr.next().toString();
 					if (patternsToSkip.contains(str)) {
-// 						LOG.warn("Skipping value: "+str);
+						LOG.warn("Skipping value: "+str);
 					continue;
 					}
 					else{
