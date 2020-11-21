@@ -131,12 +131,12 @@ LocalDate date1 = LocalDate.parse(price, formatter);
 System.out.println(date1);
 String da=date1.toString();
 String p_num[] = da.split("-");
-System.out.println(p_num[0]);
-// String bucketTextYear = p_num[0];
+// System.out.println(p_num[0]);
+String bucketTextYear = p_num[0];
 context.write(new Text(bucketTextYear),one);
 // System.out.println(p_num[1]);
-String bucketTextMonth = p_num[1];
-context.write(new Text(bucketTextMonth),one);
+// String bucketTextMonth = p_num[1];
+// context.write(new Text(bucketTextMonth),one);
 								
                                     
                                 }
