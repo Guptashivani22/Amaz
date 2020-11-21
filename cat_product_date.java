@@ -136,7 +136,7 @@ String p_num[] = da.split("-");
 String bucketTextYear = "Year: " + p_num[0];
 context.write(new Text(bucketTextYear),one);
 // System.out.println(p_num[1]);
-String bucketTextMonth = = "Month: " + p_num[1];
+String bucketTextMonth = "Month: " + p_num[1];
 context.write(new Text(bucketTextMonth),one);
 								
                                     
