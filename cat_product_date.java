@@ -5,6 +5,10 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Locale;  
+import java.time.LocalDate;  
+import java.time.format.DateTimeFormatter; 
+
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.conf.Configuration;
@@ -53,8 +57,8 @@ public class cat_product_date extends Configured implements Tool {
                 }
 
                 // Now we create and configure a map-reduce "job"
-                Job job = Job.getInstance(getConf(), "cat_product_price");
-                job.setJarByClass(cat_product_price.class);
+                Job job = Job.getInstance(getConf(), "cat_product_date");
+                job.setJarByClass(cat_product_date.class);
 
                 // By default we are going to scan every row in the table
                 Scan scan = new Scan();
@@ -99,7 +103,7 @@ public class cat_product_date extends Configured implements Tool {
                 @Override
                 protected void setup(Context context) {
                         parser = new JsonParser();
-                        rowsProcessed = context.getCounter("cat_product_price", "Rows Processed");
+                        rowsProcessed = context.getCounter("cat_product_date", "Rows Processed");
                 }
 
                 // This "map" method is called with every row scanned.
@@ -115,62 +119,27 @@ public class cat_product_date extends Configured implements Tool {
 
                                 JsonObject jsonObject = jsonTree.getAsJsonObject();
 
-String maincat = jsonObject.get("main_cat").getAsString();
-        if (maincat.startsWith("<")) {
-            String pattern = ".*alt=\"([^\"]*)\".*";
-            Pattern p = Pattern.compile(pattern);
-            Matcher m = p.matcher(maincat);
-            while(m.find()) { maincat = m.group(1); }
-        }
+String price = jsonObject.get("date").getAsString();
         
-        //System.out.println("Category is: " + maincat);
-                                String price = jsonObject.get("price").getAsString();
-                                if (price.trim().isEmpty()) {
-                                String nPVText = maincat + ": No-price-Value";
-                                        context.write(new Text(nPVText),one);
+        if (price.startsWith("<")) 
+        {
+// System.out.println("Category is: Bad-Values");
+context.write(new Text("Bad-Values"),one);
+                                } else{
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH);
+LocalDate date1 = LocalDate.parse(price, formatter);
+System.out.println(date1);
+String da=date1.toString();
+String p_num[] = da.split("-");
+System.out.println(p_num[0]);
+// String bucketTextYear = p_num[0];
+context.write(new Text(bucketTextYear),one);
+// System.out.println(p_num[1]);
+String bucketTextMonth = p_num[1];
+context.write(new Text(bucketTextMonth),one);
+								
+                                    
                                 }
-								
-								else if (price.startsWith("<")) {
-                                String nBVText = maincat + ": Bad-Values";
-                                        context.write(new Text(nBVText),one);
-                                }
-								else{
-								price = price.replace("$", "");
-								
-								char someChar = '-';
-								int count = 0;
- 
-								for (int i = 0; i < price.length(); i++) {
-    									if (price.charAt(i) == someChar) {
-        									count++;
-										    }
-								}
-									
-								String p_num[] = price.split("-");
-								List<String> al = new ArrayList<String>();
-								al = Arrays.asList(p_num);
-								
-								double total = 0;
-								
-								for(String s: al){
-								total = total + Float.parseFloat(s);
-								}
-	    
-								double avg_price = 0.0;
-								if(count == 0){
-								    avg_price = total;
-									}
-								else{
-								    avg_price = total / 2;
-								}
-								
-								double bucket = Math.floor(avg_price/50.0)*50.0;
-								//String bucketText = bucket + " to " + (bucket + 50.0);
-								String bucketText = maincat + ":" + bucket + " to " + (bucket + 50.0);
-								context.write(new Text(bucketText),one);
-								
-								
-								}
 								
 								
 
